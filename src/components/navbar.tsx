@@ -16,7 +16,7 @@ const Navbar = () => {
             Boom
           </Button>
         </Link>
-        <Link href="/leaderboards" className="hidden md:block">
+        <Link href="/leaderboard" className="hidden md:block">
           <Button variant="ghost" className="">
             <TrophyIcon className="mr-2 h-4 w-4" />
             Leaderboards
