@@ -84,6 +84,9 @@ export default function TikTokBoom({ level, onLevelWin }: TikTokBoomProps) {
 
   return (
     <div className="flex h-full flex-col items-center justify-center space-y-4">
+      <div className="flex items-center gap-2">
+        <div className="text-2xl font-bold">Level: {level}</div>
+      </div>
       <div
         className={cn(
           "rounded-xl bg-blue-300/40 px-5 py-2 text-xl font-bold text-blue-600 dark:text-blue-300",
