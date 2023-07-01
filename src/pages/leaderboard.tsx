@@ -10,12 +10,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { useClerk } from "@clerk/nextjs";
+import { useProfile } from "@/hooks/useProfile";
 import { LeaderBoardEntry, Profile } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
 import Head from "next/head";
 import { useMemo, useState } from "react";
+import redaxios from "redaxios";
 
 export type LeaderBoardWithProfile = LeaderBoardEntry & {
   profile: Profile;
@@ -25,20 +26,18 @@ export default function Leaderboard() {
   const [onlyMine, setOnlyMine] = useState(false);
   const [level, setLevel] = useState<number>();
   const [maxLevel, setMaxLevel] = useState<number>();
-  const { user } = useClerk();
+  const profile = useProfile();
 
-  useQuery({
+  useQuery<{ maxLevel: number | null }>({
     queryKey: ["maxlevel"],
     queryFn: async (ctx) => {
-      const value: number | null = await (await fetch("/api/maxlevel")).json();
-
-      if (
-        typeof value === "number" &&
-        (maxLevel === undefined || maxLevel < value)
-      ) {
-        setMaxLevel(value);
-        setLevel(4);
-      }
+      const res = await redaxios.get("/api/maxlevel");
+      return res.data;
+    },
+    onSuccess: (data) => {
+      if (data.maxLevel === null) return;
+      setMaxLevel(data.maxLevel);
+      setLevel(4);
     },
   });
 
@@ -47,19 +46,23 @@ export default function Leaderboard() {
     enabled: maxLevel !== undefined,
     queryFn: async (ctx) => {
       let url = "/api/leaderboard";
-      if (level !== undefined && onlyMine) {
+      if (level !== undefined || (onlyMine && profile)) {
         url += "?";
       }
       if (level !== undefined) {
         url += `level=${level}`;
       }
-      if (onlyMine && user) {
-        url += `player=${user.emailAddresses}`;
+      if (onlyMine && profile) {
+        url += `player=${profile.id}`;
       }
-      return await (await fetch(url)).json();
+      const res = await redaxios.get(url);
+      if (res.status === 200) {
+        return res.data as LeaderBoardWithProfile[];
+      }
+      return [];
     },
   });
-  const { data: leaderboards, refetch } = leaderboardsQuery;
+  const { data: leaderboards = [] } = leaderboardsQuery;
 
   console.log("leaderboard:", leaderboards);
 
@@ -68,9 +71,9 @@ export default function Leaderboard() {
   };
 
   const levelArr = useMemo(() => {
-    if (maxLevel === undefined || maxLevel < 4) return undefined;
+    if (maxLevel === undefined || maxLevel < 1) return undefined;
     const arr = [];
-    for (let i = 4; i <= maxLevel; i += 4) {
+    for (let i = 1; i <= maxLevel; i++) {
       arr.push(i);
     }
     return arr;
@@ -93,7 +96,7 @@ export default function Leaderboard() {
             <div className="mb-5 flex items-center justify-between">
               <div className="text-5xl font-bold">Leaderboards</div>
               <div className="flex gap-2">
-                {user !== undefined && (
+                {!profile && (
                   <div className="flex items-center gap-2 p-2 rounded border">
                     <div className="text-sm">Only Mine</div>
                     <Switch

@@ -1,6 +1,9 @@
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
-import { TrophyIcon } from "lucide-react";
+import { siteConfig } from "@/site-config";
+import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
+import { LogInIcon, TrophyIcon } from "lucide-react";
 import Link from "next/link";
+import { MobileDropdown } from "./mobile-nav";
+import { ThemeToggle } from "./theme-toggle";
 import { Button } from "./ui/button";
 
 const Navbar = () => {
@@ -17,20 +20,37 @@ const Navbar = () => {
           </Button>
         </Link>
         <Link href="/leaderboard" className="hidden md:block">
-          <Button variant="ghost" className="">
+          <Button variant="ghost">
             <TrophyIcon className="mr-2 h-4 w-4" />
             Leaderboards
           </Button>
         </Link>
       </div>
-      <SignedIn>
-        {/* Mount the UserButton component */}
-        <UserButton />
-      </SignedIn>
-      <SignedOut>
+      <div className="flex items-center gap-2">
+        <SignedIn>
+          <ThemeToggle className="" variant="outline" />
+          <MobileDropdown
+            items={{ main: siteConfig.mainNav, docs: siteConfig.sidebarNav }}
+          />
+        </SignedIn>
         {/* Signed out users get sign in button */}
+        <SignedOut>
+          <SignInButton>
+            <Button>
+              <LogInIcon className="w-5 h-5 mr-2" />
+              Sign In
+            </Button>
+          </SignInButton>
+        </SignedOut>
+      </div>
+      {/* Mount the UserButton component */}
+      {/* <SignedIn>
+        <UserButton />
+      </SignedIn> */}
+      {/* Signed out users get sign in button */}
+      {/* <SignedOut>
         <SignInButton />
-      </SignedOut>
+      </SignedOut> */}
     </div>
   );
 };

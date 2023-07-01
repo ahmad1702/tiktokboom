@@ -1,6 +1,7 @@
 // Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import prisma from "@/server/db";
 import { Profile } from "@prisma/client";
+import { set } from "lodash-es";
 import type { NextApiRequest, NextApiResponse } from "next";
 
 type Data = {
@@ -12,28 +13,31 @@ export default async function handler(
   res: NextApiResponse
 ) {
   const level = req.query.level;
-  const email = req.query.player;
-
-  let formattedLevel = undefined;
-  if (typeof level === "string" && !isNaN(parseInt(level))) {
-    formattedLevel = parseInt(level);
-  }
+  const profileId = req.query.player;
 
   let foundProfile: Profile | undefined = undefined;
-  if (typeof email === "string") {
+  if (typeof profileId === "string") {
     const profile = await prisma.profile.findFirst({
       where: {
-        email,
+        id: profileId,
       },
     });
     foundProfile = profile || undefined;
   }
 
+  const where = {};
+
+  if (typeof level === "string") {
+    if (!isNaN(parseInt(level))) {
+      set(where, "level", parseInt(level));
+    }
+  }
+  if (foundProfile) {
+    set(where, "profile", foundProfile);
+  }
+
   const leaderboard = await prisma.leaderBoardEntry.findMany({
-    where: {
-      level: formattedLevel,
-      profileId: foundProfile ? foundProfile.id : undefined,
-    },
+    where,
     include: {
       profile: true,
     },

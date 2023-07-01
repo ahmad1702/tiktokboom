@@ -13,5 +13,5 @@ export default async function handler(
       },
     })
   )._max.level;
-  res.status(200).json(maxLevel);
+  res.status(200).json({ maxLevel });
 }

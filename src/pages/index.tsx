@@ -1,23 +1,57 @@
 import Navbar from "@/components/navbar";
-import { Button } from "@/components/ui/button";
+import TikTokBoom from "@/components/tiktokboom";
+import { useProfile } from "@/hooks/useProfile";
+import { useClerk } from "@clerk/nextjs";
 import { LeaderBoardEntry, Profile } from "@prisma/client";
+import { useQuery } from "@tanstack/react-query";
+import { Loader2Icon } from "lucide-react";
 import { Inter } from "next/font/google";
 import { useState } from "react";
+import redaxios from "redaxios";
 
 const inter = Inter({ subsets: ["latin"] });
 
 type LeaderBoardWithProfile = LeaderBoardEntry & { profile: Profile };
 
 export default function Home() {
-  const [leaderboard, setLeaderboard] = useState<LeaderBoardWithProfile[]>([]);
+  const profile = useProfile();
+  const clerk = useClerk();
+  const [level, setLevel] = useState<number>();
 
-  const fetchLeaderboard = async () => {
+  const levelQuery = useQuery<number>({
+    queryKey: ["my-level", clerk.loaded, profile?.id],
+    queryFn: async (ctx) => {
+      if (!profile?.email) {
+        console.log("No Profile Found. Setting the level to 1...");
+        return 1;
+      }
+      const res = (await redaxios.get(
+        `/api/mylevel?email=${profile.email}`
+      )) as {
+        data: { level: number };
+      };
+      console.error(res);
+      return res.data.level || 1;
+    },
+    onSuccess(data) {
+      setLevel(data);
+    },
+  });
+
+  const { refetch } = levelQuery;
+
+  const onLevelWin = async (seconds: number) => {
+    setLevel((prev) => prev! + 1);
+    const profileId = profile?.id;
+    if (!profileId) return;
     try {
-      const res = await (
-        await fetch(`${window.location.origin}/api/leaderboard`)
-      ).json();
-      if (Array.isArray(res)) {
-        setLeaderboard(res);
+      const res = await redaxios.post("/api/level-win", {
+        profileId,
+        level,
+        seconds,
+      });
+      if (res.status === 200) {
+        const leaderBoardEntry = res.data as LeaderBoardEntry;
       }
     } catch (error) {
       console.error(error);
@@ -26,9 +60,11 @@ export default function Home() {
   return (
     <>
       <Navbar />
-      <main className="flex flex-col gap-2">
-        <Button onClick={() => fetchLeaderboard()}>Call data</Button>
-        <div>{JSON.stringify(leaderboard)}</div>
+      <main className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center gap-2">
+        {!clerk.loaded && <Loader2Icon className="w-10 h-10 animate-spin" />}
+        {clerk.loaded && level !== undefined && (
+          <TikTokBoom level={level} onLevelWin={onLevelWin} />
+        )}
       </main>
     </>
   );
