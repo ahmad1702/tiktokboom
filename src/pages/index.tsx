@@ -16,6 +16,7 @@ type LeaderBoardWithProfile = LeaderBoardEntry & { profile: Profile };
 export default function Home() {
   const profile = useProfile();
   const clerk = useClerk();
+  const [maxLevel, setMaxLevel] = useState<number>();
   const [level, setLevel] = useState<number>();
 
   const levelQuery = useQuery<number>({
@@ -34,6 +35,7 @@ export default function Home() {
       return res.data.level || 1;
     },
     onSuccess(data) {
+      setMaxLevel(data);
       setLevel(data);
     },
   });
@@ -63,7 +65,13 @@ export default function Home() {
       <main className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center gap-2">
         {!clerk.loaded && <Loader2Icon className="w-10 h-10 animate-spin" />}
         {clerk.loaded && level !== undefined && (
-          <TikTokBoom level={level} onLevelWin={onLevelWin} />
+          <TikTokBoom
+            onLevelWin={onLevelWin}
+            level={level}
+            setLevel={setLevel}
+            maxLevel={level}
+            setMaxLevel={setLevel}
+          />
         )}
       </main>
     </>
