@@ -44,6 +44,11 @@ export default function Home() {
 
   const onLevelWin = async (seconds: number) => {
     setLevel((prev) => prev! + 1);
+    if (maxLevel === undefined) {
+      setMaxLevel(1);
+    } else if (level && level + 1 > maxLevel) {
+      setMaxLevel(level + 1);
+    }
     const profileId = profile?.id;
     if (!profileId) return;
     try {
@@ -64,13 +69,13 @@ export default function Home() {
       <Navbar />
       <main className="min-h-[calc(100vh-64px)] flex flex-col items-center justify-center gap-2">
         {!clerk.loaded && <Loader2Icon className="w-10 h-10 animate-spin" />}
-        {clerk.loaded && level !== undefined && (
+        {clerk.loaded && level !== undefined && maxLevel !== undefined && (
           <TikTokBoom
             onLevelWin={onLevelWin}
             level={level}
             setLevel={setLevel}
-            maxLevel={level}
-            setMaxLevel={setLevel}
+            maxLevel={maxLevel}
+            setMaxLevel={setMaxLevel}
           />
         )}
       </main>

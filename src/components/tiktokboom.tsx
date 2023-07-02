@@ -3,10 +3,90 @@ import { Button } from "@/components/ui/button";
 import { useInterval } from "@/hooks/useInterval";
 import { cn } from "@/lib/utils";
 import { differenceInMilliseconds } from "date-fns";
+import { random } from "lodash-es";
 import { Check, Clock, PauseIcon, Play } from "lucide-react";
 import { Dispatch, Fragment, SetStateAction, useState } from "react";
 import Lottie from "react-lottie";
 import MainLogo from "./main-logo";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "./ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
+
+// const WinModal = ({ secMsg }: { secMsg: string }) => {
+//   return (
+//     <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center space-y-4 rounded-xl bg-gradient-to-tr from-green-500 to-green-400 text-lg font-bold text-white">
+//       You Won in {secMsg}...
+//     </div>
+//   );
+// };
+
+const LevelSelect = ({
+  level,
+  setLevel,
+  maxLevel,
+}: {
+  level: number;
+  setLevel: Dispatch<SetStateAction<number | undefined>>;
+  maxLevel: number;
+}) => {
+  const newArr = [];
+  for (let i = 1; i <= maxLevel; i++) newArr.push(i);
+
+  return (
+    <Select
+      value={level.toString()}
+      onValueChange={(value) => setLevel(parseInt(value))}
+    >
+      <SelectTrigger className="w-[180px]">
+        <span>
+          <span className="mr-1">Level:</span>
+          <SelectValue placeholder={`Level: ${level}`}></SelectValue>
+        </span>
+      </SelectTrigger>
+      <SelectContent>
+        {newArr.map((value) => {
+          return (
+            <SelectItem key={value} value={value.toString()}>
+              {value}
+            </SelectItem>
+          );
+        })}
+      </SelectContent>
+    </Select>
+  );
+};
+const WinModal = ({
+  secMsg,
+  onOpenChange,
+}: {
+  secMsg: string;
+  onOpenChange: (open: boolean) => void;
+}) => {
+  return (
+    <Dialog open={true} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px] bg-gradient-to-tr from-green-600 to-green-400">
+        <DialogHeader className="border-b border-white pb-2">
+          <DialogTitle>That{`'`}s a win! </DialogTitle>
+        </DialogHeader>
+        <div>You Won in {secMsg}...</div>
+        <DialogFooter>
+          <Button type="submit">Save changes</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
 
 // const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] as const;
 function getRandomArbitrary(min: number, max: number) {
@@ -46,7 +126,7 @@ export default function TikTokBoom({
   for (let i = 1; i <= size; i++) nums.push(i);
 
   const onStart = () => {
-    setLuckyNum(getRandomArbitrary(1, 17));
+    setLuckyNum(random(1, size));
     setGameState("playing");
     setSelectedNums([]);
     setStartTime(new Date());
@@ -93,15 +173,7 @@ export default function TikTokBoom({
   return (
     <div className="flex h-full flex-col items-center justify-center space-y-4">
       <div className="flex items-center gap-2">
-        <div className="text-2xl font-bold">Level: {level}</div>
-        {/* <Select onValueChange={(value) => setLevel(3)}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Select a fruit" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup></SelectGroup>
-          </SelectContent>
-        </Select> */}
+        <LevelSelect level={level} setLevel={setLevel} maxLevel={maxLevel} />
       </div>
       <div
         className={cn(
@@ -116,9 +188,10 @@ export default function TikTokBoom({
       </div>
       <div className="relative flex flex-col space-y-1">
         {gameState === "won" && startTime && endTime && (
-          <div className="absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center space-y-4 rounded-xl bg-gradient-to-tr from-green-500 to-green-400 text-lg font-bold text-white">
-            You Won in {getFormattedSecondDiff(startTime, endTime)}...
-          </div>
+          <WinModal
+            secMsg={getFormattedSecondDiff(startTime, endTime)}
+            onOpenChange={stop}
+          />
         )}
         {gameState === "lost" && startTime && endTime && (
           <>
