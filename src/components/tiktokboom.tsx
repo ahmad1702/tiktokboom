@@ -241,6 +241,10 @@ export default function TikTokBoom({
             }
 
             const onSpotClick = () => {
+              if (level === 1) {
+                win();
+                return;
+              }
               if (luckyNum === val) {
                 lose();
                 return;
