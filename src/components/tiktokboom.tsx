@@ -4,10 +4,9 @@ import { useInterval } from "@/hooks/useInterval";
 import { cn } from "@/lib/utils";
 import { differenceInMilliseconds } from "date-fns";
 import { random } from "lodash-es";
-import { Check, Clock, PauseIcon, Play } from "lucide-react";
+import { Check, Clock, PauseIcon, Play, RotateCcwIcon } from "lucide-react";
 import { Dispatch, Fragment, SetStateAction, useState } from "react";
 import Lottie from "react-lottie";
-import MainLogo from "./main-logo";
 import {
   Dialog,
   DialogContent,
@@ -81,7 +80,46 @@ const WinModal = ({
         </DialogHeader>
         <div>You Won in {secMsg}...</div>
         <DialogFooter>
-          <Button type="submit">Save changes</Button>
+          <Button onClick={() => onOpenChange(false)}>
+            {" "}
+            <RotateCcwIcon className="w-4 h-4 mr-1" /> Restart
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+};
+const LostModal = ({
+  secMsg,
+  onOpenChange,
+}: {
+  secMsg: string;
+  onOpenChange: (open: boolean) => void;
+}) => {
+  return (
+    <Dialog open={true} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-[425px] bg-gradient-to-tr from-red-600 to-red-400">
+        <DialogHeader className="border-b border-white pb-2">
+          <DialogTitle>That{`'`}s a loss! </DialogTitle>
+        </DialogHeader>
+        <div>
+          <Lottie
+            options={{
+              animationData: EmojiExplosion,
+              autoplay: true,
+              loop: true,
+            }}
+            style={{
+              pointerEvents: "none",
+            }}
+          />
+          <div className="-translate-y-8">You lost after {secMsg}...</div>
+        </div>
+        <DialogFooter>
+          <Button onClick={() => onOpenChange(false)}>
+            {" "}
+            <RotateCcwIcon className="w-4 h-4 mr-1" /> Restart
+          </Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -194,6 +232,12 @@ export default function TikTokBoom({
           />
         )}
         {gameState === "lost" && startTime && endTime && (
+          <LostModal
+            secMsg={getFormattedSecondDiff(startTime, endTime)}
+            onOpenChange={stop}
+          />
+        )}
+        {/* {gameState === "lost" && startTime && endTime && (
           <>
             <div className="absolute left-3 top-3 z-[999999] bg-red-100 rounded-xl text-sm">
               <MainLogo className="text-sm p-1" />
@@ -211,7 +255,7 @@ export default function TikTokBoom({
               </div>
             </div>
           </>
-        )}
+        )} */}
         <div
           className="grid gap-1"
           style={{
