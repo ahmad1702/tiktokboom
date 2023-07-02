@@ -74,13 +74,16 @@ const WinModal = ({
 }) => {
   return (
     <Dialog open={true} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-gradient-to-tr from-green-600 to-green-400">
+      <DialogContent className="md:max-w-[425px] bg-gradient-to-tr from-green-600 to-green-400 text-white">
         <DialogHeader className="border-b border-white pb-2">
           <DialogTitle>That{`'`}s a win! </DialogTitle>
         </DialogHeader>
         <div>You Won in {secMsg}...</div>
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>
+          <Button
+            onClick={() => onOpenChange(false)}
+            className="bg-white text-black hover:bg-neutral-200"
+          >
             {" "}
             <RotateCcwIcon className="w-4 h-4 mr-1" /> Restart
           </Button>
@@ -98,7 +101,7 @@ const LostModal = ({
 }) => {
   return (
     <Dialog open={true} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[425px] bg-gradient-to-tr from-red-600 to-red-400">
+      <DialogContent className="md:max-w-[425px] bg-gradient-to-tr from-red-600 to-red-400 text-white">
         <DialogHeader className="border-b border-white pb-2">
           <DialogTitle>That{`'`}s a loss! </DialogTitle>
         </DialogHeader>
@@ -116,7 +119,10 @@ const LostModal = ({
           <div className="-translate-y-8">You lost after {secMsg}...</div>
         </div>
         <DialogFooter>
-          <Button onClick={() => onOpenChange(false)}>
+          <Button
+            onClick={() => onOpenChange(false)}
+            className="bg-white text-black hover:bg-neutral-300"
+          >
             {" "}
             <RotateCcwIcon className="w-4 h-4 mr-1" /> Restart
           </Button>
@@ -125,11 +131,6 @@ const LostModal = ({
     </Dialog>
   );
 };
-
-// const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] as const;
-function getRandomArbitrary(min: number, max: number) {
-  return Math.floor(Math.random() * (max - min) + min);
-}
 
 const baseActionButtonClassName = "px-8";
 
@@ -209,7 +210,7 @@ export default function TikTokBoom({
   }, 100);
 
   return (
-    <div className="flex h-full flex-col items-center justify-center space-y-4">
+    <div className="flex h-full flex-col items-center justify-center space-y-4 w-full">
       <div className="flex items-center gap-2">
         <LevelSelect level={level} setLevel={setLevel} maxLevel={maxLevel} />
       </div>
@@ -237,25 +238,6 @@ export default function TikTokBoom({
             onOpenChange={stop}
           />
         )}
-        {/* {gameState === "lost" && startTime && endTime && (
-          <>
-            <div className="absolute left-3 top-3 z-[999999] bg-red-100 rounded-xl text-sm">
-              <MainLogo className="text-sm p-1" />
-            </div>
-            <div className="pointer-events-none absolute left-0 top-0 z-10 flex h-full w-full flex-col items-center justify-center rounded-xl bg-gradient-to-tr from-red-500 to-red-400 text-lg font-bold text-white">
-              <Lottie
-                options={{
-                  animationData: EmojiExplosion,
-                  autoplay: true,
-                  loop: true,
-                }}
-              />
-              <div className="-translate-y-8">
-                You lost after {getFormattedSecondDiff(startTime, endTime)}...
-              </div>
-            </div>
-          </>
-        )} */}
         <div
           className="grid gap-1"
           style={{
