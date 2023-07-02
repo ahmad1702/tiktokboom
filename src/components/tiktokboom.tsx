@@ -4,13 +4,12 @@ import { useInterval } from "@/hooks/useInterval";
 import { cn } from "@/lib/utils";
 import { differenceInMilliseconds } from "date-fns";
 import { Check, Clock, PauseIcon, Play } from "lucide-react";
-import { Fragment, useState } from "react";
+import { Dispatch, Fragment, SetStateAction, useState } from "react";
 import Lottie from "react-lottie";
 import MainLogo from "./main-logo";
 
 // const nums = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16] as const;
 function getRandomArbitrary(min: number, max: number) {
-  return 4;
   return Math.floor(Math.random() * (max - min) + min);
 }
 
@@ -18,10 +17,19 @@ const baseActionButtonClassName = "px-8";
 
 type TikTokBoomProps = {
   level: number;
+  setLevel: Dispatch<SetStateAction<number | undefined>>;
+  maxLevel: number;
+  setMaxLevel: Dispatch<SetStateAction<number | undefined>>;
   onLevelWin: (seconds: number) => void;
 };
 
-export default function TikTokBoom({ level, onLevelWin }: TikTokBoomProps) {
+export default function TikTokBoom({
+  level,
+  setLevel,
+  onLevelWin,
+  maxLevel,
+  setMaxLevel,
+}: TikTokBoomProps) {
   const [currentTime, setCurrentTime] = useState<Date>();
   const [startTime, setStartTime] = useState<Date>();
   const [endTime, setEndTime] = useState<Date>();
@@ -86,6 +94,14 @@ export default function TikTokBoom({ level, onLevelWin }: TikTokBoomProps) {
     <div className="flex h-full flex-col items-center justify-center space-y-4">
       <div className="flex items-center gap-2">
         <div className="text-2xl font-bold">Level: {level}</div>
+        {/* <Select onValueChange={(value) => setLevel(3)}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Select a fruit" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectGroup></SelectGroup>
+          </SelectContent>
+        </Select> */}
       </div>
       <div
         className={cn(

@@ -5,11 +5,11 @@ import { XIcon } from "lucide-react";
 import { default as NextLink } from "next/link";
 import * as React from "react";
 
-import Link from "@/components/Link";
 import { cn } from "@/lib/utils";
 import { siteConfig } from "@/site-config";
 import { usePathname } from "next/navigation";
 import { Icons } from "./icons";
+import Link from "./link";
 import { ThemeToggle } from "./theme-toggle";
 import { Button, buttonVariants } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
